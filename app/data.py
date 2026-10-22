@@ -192,7 +192,7 @@ SERVICE_META = {
 
 DEFAULT_INPUT = {
     "fleet": {
-        "available_vessels": 44,  # 14 + 15 + 15 ships published for FAL2/FAL3/FAL5 under full Cape routing
+        "available_vessels": 50,  # illustrative shared pool; published FAL2/FAL3/FAL5 deployments sum to 44
         "min_speed_knots": 12.0,
         "max_speed_knots": 22.0,
         "reference_speed_knots": 18.0,
@@ -229,7 +229,7 @@ SOURCES = {
                "from 22 Jul 2026, Linerlytica). Scenarios here are illustrative planning cases, not the routing of "
                "FAL2/FAL3/FAL5 at any date.",
     "fleet": "Published deployments for context: FAL2 14 vessels / 98 days, FAL5 15 vessels / 105 days (Zencargo, "
-             "Feb 2025); FAL3 15-week rotation (Assahifa, early 2025). Default available fleet 44 = 14 + 15 + 15. "
+             "Feb 2025); FAL3 15-week rotation (Assahifa, early 2025). Published deployments sum to 44 (14 + 15 + 15); the default available fleet of 50 is an illustrative shared pool (44 plus 6 additional vessels). "
              "Treating these vessels as one homogeneous, jointly allocatable fleet is an illustrative modeling assumption, "
              "not a claim about CMA CGM's actual vessel ownership or deployment flexibility.",
     "distances": "Leg distances = great-circle length of authored sea-lane waypoints through the named ports; "

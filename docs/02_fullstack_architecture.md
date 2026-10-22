@@ -73,7 +73,7 @@ Example request (abbreviated; defaults come from `/api/config`):
 {
   "scenario": "mixed_routing",
   "fleet": {
-    "available_vessels": 44,
+    "available_vessels": 50,
     "min_speed_knots": 12,
     "max_speed_knots": 22,
     "reference_speed_knots": 18,

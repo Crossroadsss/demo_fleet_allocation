@@ -95,14 +95,15 @@ def test_operator_names_only_no_technical_ids(page):
     assert "NaN" not in visible and "undefined" not in visible
 
 
-def test_cost_changes_on_arrows_default_zero_savings(page):
+def test_cost_changes_on_arrows_default_positive_savings(page):
+    # default pool of 50 leaves idle Baseline vessels that the Optimized Fleet uses under full Cape
     connectors = page.locator("#plan-flow .connector")
     assert connectors.count() == 2
     disrupt, reopt = connectors.nth(0).inner_text(), connectors.nth(1).inner_text()
     assert "ROUTING DISRUPTION" in disrupt.upper() and "+$" in disrupt and "/ week" in disrupt
-    assert "FLEET REOPTIMIZATION" in reopt.upper() and "$0 / week saved" in reopt
+    assert "FLEET REOPTIMIZATION" in reopt.upper() and "/ week saved" in reopt and "$0 / week" not in reopt
     banner = page.text_content("#rec-banner")
-    assert "Maintain the existing fleet allocation and increase sailing speeds" in banner
+    assert "Reallocate vessels" in banner
     assert "Net impact vs Baseline" in banner and "+$" in banner
     assert page.locator(".op-card").count() == 3 and "proven optimal" in page.text_content("#plan-flow")
 
@@ -279,12 +280,13 @@ def test_stale_and_rerun(page):
     assert page.is_hidden("#nav-stale")
 
 
-def test_positive_savings_with_spare_vessels(page):
-    run(page, **{"economics.fuel_price_usd_per_tonne": 600, "fleet.available_vessels": 50})
+def test_zero_savings_with_published_fleet(page):
+    # with the published 44 vessels every vessel is deployed in the Baseline: no reallocation benefit
+    run(page, **{"economics.fuel_price_usd_per_tonne": 600, "fleet.available_vessels": 44})
     reopt = page.locator("#plan-flow .connector").nth(1).inner_text()
-    assert "saved" in reopt and "$0 / week" not in reopt
-    assert "Reallocate vessels" in page.text_content("#rec-banner")
-    assert page.locator("#fleet-table tr.changed").count() >= 1
+    assert "$0 / week saved" in reopt
+    assert "Maintain the existing fleet allocation and increase sailing speeds" in page.text_content("#rec-banner")
+    assert page.locator("#fleet-table tr.changed").count() == 0
 
 
 def test_infeasible_unchanged_fleet(page):

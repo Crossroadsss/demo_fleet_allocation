@@ -60,6 +60,6 @@ Loading (spinner, disabled buttons) · optimal · feasible-not-proven-optimal (a
 ## 7. Demo walkthrough
 
 1. Dashboard opens on the default run: Baseline → routing disruption → Unchanged Fleet → fleet reoptimization → Optimized Fleet, and the recommended action.
-2. With the published fleet (44 = 14 + 15 + 15) every vessel is already deployed under mixed routing, so the solver keeps the allocation and speeds up ($0/week saved). Use the maps to show the full-Cape plans sailing faster than the Baseline.
-3. Scenario Configuration: raise the fleet to 50 → positive reoptimization savings; additionally cap max speed at 14 kn → Unchanged Fleet infeasible, Optimized Fleet reallocates. Filter the maps to one or two services and click a route to highlight it.
+2. With the default pool of 50 vessels the Baseline leaves vessels idle; under full Cape the Optimized Fleet deploys them, so reoptimization saves money versus the Unchanged Fleet. Use the maps to compare vessel counts and speeds.
+3. Scenario Configuration: set the fleet to the published 44 → every vessel is already deployed in the Baseline, the solver keeps the allocation and speeds up ($0/week saved); at 50 vessels with max speed 14 kn → Unchanged Fleet infeasible, Optimized Fleet reallocates. Filter the maps to one or two services and click a route to highlight it.
 4. Model & Methodology: decision vs derived speed, 0–1 MILP, why it is exact.

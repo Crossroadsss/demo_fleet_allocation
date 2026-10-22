@@ -3,7 +3,7 @@
 **Project:** Liner Fleet Allocation & Sailing Speed Decision Support (demo prototype)  
 **Audience:** OR engineers and developers  
 **Status:** Implementation specification; do not present numerical results as verified until solver/tests run.  
-**Model scope:** a small set of liner services (default 3: CMA CGM FAL2, FAL3, FAL5 — representative Asia–North Europe loops; schema allows 1–6), a shared available fleet of homogeneous, company-owned vessels (default 44 = the 14 + 15 + 15 vessels published for these loops under full Cape routing; treating them as one homogeneous, jointly allocatable fleet is an illustrative modeling assumption, not a claim about CMA CGM's actual vessel ownership or deployment flexibility), weekly departures, steady-state tactical allocation.
+**Model scope:** a small set of liner services (default 3: CMA CGM FAL2, FAL3, FAL5 — representative Asia–North Europe loops; schema allows 1–6), a shared available fleet of homogeneous, company-owned vessels (default 50, an illustrative shared pool; for reference, the vessels published for these loops under full Cape routing sum to 44 = 14 + 15 + 15; treating them as one homogeneous, jointly allocatable fleet is an illustrative modeling assumption, not a claim about CMA CGM's actual vessel ownership or deployment flexibility), weekly departures, steady-state tactical allocation.
 
 ## 1. Product question and storyline
 
@@ -36,7 +36,7 @@ These are illustrative planning assumptions, not claims about CMA CGM's actual c
 |---|---|---|---|
 | `s ∈ S` | service (default 3 services) | — | — |
 | `n ∈ N_s` | option: integer number of assigned vessels, `N_s = {1,…,F}` | vessels | per service |
-| `F` | total vessels available across services (default 44) | vessels | global |
+| `F` | total vessels available across services (default 50) | vessels | global |
 | `D_s` | round-trip **sailing** distance = westbound leg + eastbound leg of the scenario's route variants | nautical miles | per service, per scenario |
 | `P_s` | total port stay per loop (excluding buffer); same in both scenarios | days | per service |
 | `v_min`, `v_max` | operating speed bounds, editable (default 12 / 22), always enforced | knots | global |
@@ -137,7 +137,7 @@ All options `n = 1…F` of every service enter the model (no pre-filtering); eve
 
 **Post-solve diagnostics (explanation only, not a decision):** when the solver returns INFEASIBLE, Python explains why from the same coefficients: per service, the smallest `n` satisfying C4/C7/C8 (or "none" with the reason, e.g. `Tmax_s ≤ P_s` or C8 needs speed > `v_max`), C6 caps below that minimum, and the sum of minimum fleets versus `F`.
 
-**Solver:** Google OR-Tools linear solver wrapper (`pywraplp`) with the **SCIP** backend. SCIP accepts floating-point coefficients, so costs and times are used at full precision with **no integer scaling**. Results are cross-checked by exhaustive enumeration in tests (feasible for the demo's size). About `|S|·F` binaries (132 for 3 services and 44 vessels).
+**Solver:** Google OR-Tools linear solver wrapper (`pywraplp`) with the **SCIP** backend. SCIP accepts floating-point coefficients, so costs and times are used at full precision with **no integer scaling**. Results are cross-checked by exhaustive enumeration in tests (feasible for the demo's size). About `|S|·F` binaries (150 for 3 services and 50 vessels).
 
 **Why not let the solver choose speed:** with `v` as a variable the model becomes a MINLP (`v²` objective, bilinear frequency constraint). That needs a nonlinear solver interface (e.g. PySCIPOpt) or a piecewise-linear approximation of `v²`. Enumerating the integer fleet count makes speed a per-option constant, keeping the model an **exact linear 0–1 MILP**.
 

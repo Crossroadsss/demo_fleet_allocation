@@ -68,4 +68,5 @@ def test_port_days_follow_port_call_count():
 def test_default_services_and_fleet():
     assert [s["service_id"] for s in data.DEFAULT_INPUT["services"]] == ["FAL2", "FAL3", "FAL5"]
     published = sum(m["published_vessels_full_cape"] for m in data.SERVICE_META.values())
-    assert data.DEFAULT_INPUT["fleet"]["available_vessels"] == published == 44
+    assert published == 44  # reference figure from public sources
+    assert data.DEFAULT_INPUT["fleet"]["available_vessels"] == 50  # illustrative shared pool (44 + 6)

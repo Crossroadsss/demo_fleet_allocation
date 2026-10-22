@@ -1,0 +1,25 @@
+# Python environment and caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Test / coverage output
+test-results/
+playwright-report/
+.coverage
+htmlcov/
+
+# Editors and OS
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+
+# Local settings, secrets, logs
+.claude/settings.local.json
+.env
+*.log
+
+# Assistant instructions stay local
+CLAUDE.md

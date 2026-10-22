@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liner Fleet Optimizer</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+<div class="shell">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-title"><svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M15 3h2v4h4v2h-4v3h7l-1 5H9l-1-5h7V9h-4V7h4zM4 19h24l-3 7c-1 1-2 1-3 0-1 1-3 1-4 0-1 1-3 1-4 0-1 1-3 1-4 0-1 1-2 1-3 0zm2 9h20v2H6z"/></svg><span>Liner Fleet &amp; Speed Optimizer</span></div>
+      <div class="brand-sub">Fleet planning · Asia–North Europe · Red Sea routing</div>
+    </div>
+    <nav class="nav" aria-label="Pages">
+      <button class="nav-item active" data-page="results"><svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="0.5"/><rect x="12" y="8" width="3" height="10" rx="0.5"/><rect x="17" y="5" width="3" height="13" rx="0.5"/></svg>Decision Dashboard <span class="nav-badge hidden" id="nav-stale">stale</span></button>
+      <button class="nav-item" data-page="inputs"><svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><path d="M9 10.5l1.2 1.2 2.3-2.3M14.5 11h1.5M9 16l1.2 1.2 2.3-2.3M14.5 16.5h1.5"/></svg>Scenario Configuration</button>
+      <button class="nav-item" data-page="model"><svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"/><path d="M22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/></svg>Model &amp; Methodology</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="muted small">Illustrative planning data</div>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <!-- ================= PAGE 1: MODEL ================= -->
+    <main id="page-model" class="page hidden">
+      <header class="page-head">
+        <h1>Model &amp; Methodology</h1>
+        <p class="lead">What is decided, what is minimized, and which rules every plan must satisfy.</p>
+      </header>
+
+      <section class="card">
+        <h2>Business problem</h2>
+        <p class="callout">FAL2, FAL3, and FAL5 were selected as representative CMA CGM Asia–North Europe liner services to
+          demonstrate how Red Sea routing disruptions affect fleet allocation, sailing speeds, and operating costs.</p>
+        <p class="intro">Each service keeps a <b>weekly departure</b>, and all three share one limited pool of
+          <b>company-owned, identical vessels</b>. More ships on a loop allow slower, cheaper sailing; fewer ships force
+          faster sailing and higher fuel burn.</p>
+        <div class="glance">
+          <div class="glance-item primary">
+            <div class="glance-label">Primary decision</div>
+            <div class="glance-title">Vessels per service</div>
+            <div class="tex-block" data-tex="x_s \in \{1,\dots,F\}">x[s] ∈ {1,…,F}</div>
+            <p>How many vessels each service operates — an integer, chosen by the solver.</p>
+          </div>
+          <div class="glance-item">
+            <div class="glance-label">Derived, not decided</div>
+            <div class="glance-title">Sailing speed</div>
+            <div class="tex-block" data-tex="v_s = v(x_s)">v[s] = v(x[s])</div>
+            <p>Follows from the fleet size: the cheapest speed that still keeps weekly departures.</p>
+          </div>
+          <div class="glance-item">
+            <div class="glance-label">Objective</div>
+            <div class="glance-title">Minimum weekly cost</div>
+            <div class="tex-block" data-tex="\min\; \sum_s \big(\underbrace{p\,c\,D_s v_s^2}_{\text{fuel}} + \underbrace{h\,x_s}_{\text{vessel operating}}\big)">min Σ (fuel + h·x)</div>
+            <p>Fuel plus incremental vessel operating cost, in USD per week.</p>
+          </div>
+          <div class="glance-item">
+            <div class="glance-label">Essential rules</div>
+            <div class="glance-title">Every plan must</div>
+            <ul class="tight">
+              <li>use at most the available fleet <i>F</i></li>
+              <li>keep a departure every 7 days on every service</li>
+              <li>sail within the speed range</li>
+            </ul>
+          </div>
+        </div>
+        <div class="scenario-pair" id="scenario-explainer"></div>
+        <p class="muted small">The dashboard compares three operating plans: <b>Baseline</b> (A, mixed-routing optimum) ·
+          <b>Unchanged Fleet</b> (B1, full Cape with the Baseline vessel counts, speeds recomputed) · <b>Optimized Fleet</b>
+          (B2, full Cape, fleet and speeds re-optimized).</p>
+      </section>
+
+      <section class="card">
+        <h2>Key assumptions</h2>
+        <ul class="cols2">
+          <li>Identical, company-owned vessels in one shared fleet — treating the three loops' vessels as a homogeneous, jointly allocatable pool is an illustrative modeling assumption, not a claim about CMA CGM's actual vessel ownership or deployment flexibility</li>
+          <li>Fixed port rotation and distance per scenario</li>
+          <li>One average sailing speed per service</li>
+          <li>Weekly departures on every service</li>
+          <li>Medium-term steady state (no transition)</li>
+          <li>Fuel per day ∝ speed³ (per nautical mile ∝ speed²)</li>
+          <li>Unused vessels may stay idle</li>
+          <li>No cargo demand, capacity, repositioning, canal tolls or AIS data in v1</li>
+        </ul>
+        <div class="note"><b>Owned fleet: why ownership cost is left out.</b> Each vessel's weekly cost splits into an
+          unavoidable part and an activity-dependent part,
+          <span class="tex" data-tex="h = h_{\text{active}} - h_{\text{idle}}">h = h_active − h_idle</span>.
+          The unavoidable part is the same for every allocation, so dropping it does not change the optimal plan.
+          <i>h</i> covers extra maintenance, consumables and operating expenses, plus the opportunity cost of using the
+          vessel instead of keeping it in reserve — excluding fuel.</div>
+      </section>
+
+      <section class="card">
+        <h2>Constraints</h2>
+        <div class="c-list">
+          <div class="c-row"><span class="c-id">C1</span><div><b>One fleet size per service</b><span>exactly one integer option is chosen</span></div><span class="tex" data-tex="\sum_n y_{s,n} = 1">Σ_n y = 1</span><span class="badge">mandatory</span></div>
+          <div class="c-row"><span class="c-id">C2</span><div><b>Shared fleet pool</b><span>couples the services</span></div><span class="tex" data-tex="\sum_s\sum_n n\,y_{s,n} \le F">Σ n·y ≤ F</span><span class="badge">mandatory</span></div>
+          <div class="c-row"><span class="c-id">C3</span><div><b>Binary options</b><span>integer vessel counts</span></div><span class="tex" data-tex="y_{s,n}\in\{0,1\}">y ∈ {0,1}</span><span class="badge">mandatory</span></div>
+          <div class="c-row"><span class="c-id">C4</span><div><b>Weekly frequency</b><span>sailing + port (+ buffer) fits 7n days</span></div><span class="tex" data-tex="\sum_n (\text{sail}_{s,n} + P_s + B_s - 7n)\, y_{s,n} \le 0">Σ (sail+P+B−7n)·y ≤ 0</span><span class="badge">mandatory</span></div>
+          <div class="c-row"><span class="c-id">C5</span><div><b>Speed range</b><span>physical operating limits</span></div><span class="tex" data-tex="v_{\min} \le \sum_n v_{s,n} y_{s,n} \le v_{\max}">v_min ≤ Σ v·y ≤ v_max</span><span class="badge">mandatory</span></div>
+          <div class="c-row"><span class="c-id">C6</span><div><b>Max fleet per service</b><span>business cap per loop</span></div><span class="tex" data-tex="\sum_n n\,y_{s,n} \le M_s">Σ n·y ≤ M</span><span class="badge opt">optional</span></div>
+          <div class="c-row"><span class="c-id">C7</span><div><b>Minimum schedule buffer</b><span>recovery margin in the rotation</span></div><span class="tex" data-tex="B_s > 0 \text{ in C4}">B > 0 in C4</span><span class="badge opt">optional</span></div>
+          <div class="c-row"><span class="c-id">C8</span><div><b>Max round-trip time</b><span>active ship cycle, not cargo transit</span></div><span class="tex" data-tex="\sum_n \text{sail}_{s,n} y_{s,n} + P_s \le T^{\max}_s">Σ sail·y + P ≤ Tmax</span><span class="badge opt">optional</span></div>
+        </div>
+      </section>
+
+      <details class="card fold">
+        <summary>Full mathematical formulation</summary>
+        <div class="math-grid">
+          <div class="math-item"><div class="math-label">Solver variable (binary option)</div>
+            <div class="tex-block" data-tex="y_{s,n} \in \{0,1\}\;\; (= 1 \text{ if service } s \text{ uses } n \text{ vessels}),\qquad x_s = \sum_n n\,y_{s,n}">y[s,n] ∈ {0,1}, x[s] = Σ n·y[s,n]</div></div>
+          <div class="math-item"><div class="math-label">Round-trip distance per scenario</div>
+            <div class="tex-block" data-tex="D_s = D_s^{\text{westbound}} + D_s^{\text{eastbound}}">D[s] = D_westbound + D_eastbound</div></div>
+          <div class="math-item"><div class="math-label">Required speed of option (s, n)</div>
+            <div class="tex-block" data-tex="v^{\text{req}}_{s,n} = \max\!\Big(v_{\min},\; \frac{D_s}{24\,(7n - P_s - B_s)},\; \frac{D_s}{24\,(T^{\max}_s - P_s)}\Big)">v_req = max(v_min, D/(24(7n−P−B)), D/(24(Tmax−P)))</div>
+            <p class="small muted">Last term only when C8 is on; B = buffer when C7 is on, else 0. A non-positive denominator means no speed works.</p></div>
+          <div class="math-item"><div class="math-label">Option speed and sailing time</div>
+            <div class="tex-block" data-tex="v_{s,n} = \min\big(v_{\max},\, v^{\text{req}}_{s,n}\big),\qquad \text{sail}_{s,n} = \frac{D_s}{24\, v_{s,n}}">v = min(v_max, v_req), sail = D/(24v)</div>
+            <p class="small muted">If the required speed exceeds the maximum, the option sails at v<sub>max</sub>, no longer fits 7n days, and C4 rules it out.</p></div>
+          <div class="math-item"><div class="math-label">Fuel coefficient</div>
+            <div class="tex-block" data-tex="c = \frac{f_{\text{ref}}}{24\, v_{\text{ref}}^3}\quad\Rightarrow\quad \text{fuel per nm} = c\, v^2">c = f_ref / (24·v_ref³)</div></div>
+          <div class="math-item"><div class="math-label">Weekly cost of option (s, n) and objective</div>
+            <div class="tex-block" data-tex="C_{s,n} = p\, c\, D_s\, v_{s,n}^2 + h\, n,\qquad \min \sum_s\sum_n C_{s,n}\, y_{s,n}">C[s,n] = p·c·D·v² + h·n; min Σ C·y</div>
+            <p class="small muted">One round trip departs per service per week, so weekly fuel is c·D·v² — not multiplied by n.</p></div>
+        </div>
+        <div class="note"><b>Why this is an exact 0–1 MILP.</b> Speed enters the cost through v² and the frequency rule
+          through 1/v. Rather than making speed a variable (a mixed-integer <i>nonlinear</i> program), every integer fleet
+          size n is enumerated as an option. For a fixed n, speed, sailing time and cost are constants, so all constraints
+          and the objective are <b>linear in the binaries y</b>. C1 forces exactly one y = 1 per service, so each summed
+          row equals the chosen option's value — an exact reformulation, not an approximation.</div>
+      </details>
+
+      <details class="card fold">
+        <summary>How each constraint is implemented</summary>
+        <table class="data impl">
+          <thead><tr><th>#</th><th>Implementation in the solver</th></tr></thead>
+          <tbody>
+            <tr><td>C1, C2, C6</td><td>Explicit linear rows over y (C6 only when enabled).</td></tr>
+            <tr><td>C3</td><td>Variable domain (BoolVar).</td></tr>
+            <tr><td>C4 (+ C7)</td><td>Explicit row using precomputed sailing days; the buffer B enters the same row and the option speed.</td></tr>
+            <tr><td>C5</td><td>Satisfied in preprocessing (speed clamped to the range); kept as visible, non-binding rows.</td></tr>
+            <tr><td>C8</td><td>Explicit row using precomputed sailing days; also raises the option speed.</td></tr>
+          </tbody>
+        </table>
+        <p class="small muted">The solver decides feasibility; if it reports INFEASIBLE, the app explains why afterwards (minimum fleet per service, binding rule).</p>
+      </details>
+
+      <details class="card fold">
+        <summary>Optimization workflow</summary>
+        <div class="flow">
+          <div class="flow-step"><b>Business inputs</b><span>fleet, fuel, cost, routes, rules</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>Options</b><span>n = 1…F per service: speed, time, cost</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>0–1 MILP</b><span>y[s,n], C1–C8, min cost</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent"><b>OR-Tools / SCIP</b><span>status &amp; plan</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>Independent verification</b><span>re-derive all rules &amp; costs</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>Results</b><span>A · B1 · B2</span></div>
+        </div>
+      </details>
+
+      <details class="card fold">
+        <summary>Limitations and data sources</summary>
+        <ul>
+          <li>The two routing scenarios are <b>hypothetical planning cases</b>, not a claim about today's actual maritime routing.</li>
+          <li>Results compare separate steady states; not a transition or repositioning plan, and cost differences are not guaranteed cash savings.</li>
+          <li>Single average speed per service; weather, congestion and canal waiting are not modeled.</li>
+          <li>Leg distances come from authored sea-lane waypoints (validated against a published reference), not navigation software.</li>
+          <li>Port time = port calls × average berth days; economic inputs are illustrative, not CMA CGM data.</li>
+        </ul>
+        <h3>Data sources</h3>
+        <ul id="sources-list" class="small"></ul>
+      </details>
+    </main>
+
+    <!-- ================= PAGE 2: INPUTS ================= -->
+    <main id="page-inputs" class="page hidden">
+      <header class="page-head row">
+        <div>
+          <h1>Scenario Configuration</h1>
+          <p class="lead">Planning inputs for both routing scenarios. Any change marks the dashboard as out of date until you rerun.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btn-reset">Reset to defaults</button>
+          <button class="btn primary big" id="btn-compare">Run optimization</button>
+        </div>
+      </header>
+      <div class="config-summary" id="config-summary"></div>
+      <div id="input-message"></div>
+
+      <section class="card">
+        <h2>Fleet &amp; vessel characteristics <span class="muted">(identical, company-owned)</span></h2>
+        <div class="grid">
+          <label class="field" title="Default 44 = published FAL2 (14) + FAL3 (15) + FAL5 (15) deployments. Treating them as one homogeneous, jointly allocatable fleet is an illustrative modeling assumption.">
+            Available vessels <span class="unit">vessels · shared pool (illustrative)</span>
+            <input type="number" step="1" data-path="fleet.available_vessels" data-type="int"></label>
+          <label class="field">Reference speed <span class="unit">knots</span>
+            <input type="number" step="0.5" data-path="fleet.reference_speed_knots"></label>
+          <label class="field">Fuel at reference speed <span class="unit">tonnes/day</span>
+            <input type="number" step="1" data-path="fleet.reference_fuel_tonnes_per_day"></label>
+          <div class="field readonly">Derived fuel coefficient c <span class="unit">t / (nm·kn²)</span>
+            <output id="fuel-coeff" class="mono"></output></div>
+          <label class="field">Minimum speed <span class="unit">knots</span>
+            <input type="number" step="0.5" data-path="fleet.min_speed_knots"></label>
+          <label class="field">Maximum speed <span class="unit">knots</span>
+            <input type="number" step="0.5" data-path="fleet.max_speed_knots"></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Economics</h2>
+        <div class="grid">
+          <label class="field">Bunker fuel price <span class="unit">USD/tonne</span>
+            <input type="number" step="10" data-path="economics.fuel_price_usd_per_tonne"></label>
+          <label class="field" title="Incremental cost of deploying an owned vessel versus leaving it idle, excluding fuel: extra maintenance, consumables, operating expenses and opportunity cost. Not acquisition cost, depreciation or charter hire.">
+            Incremental vessel operating cost <span class="unit">USD/vessel/week · excl. fuel, vs idle</span>
+            <input type="number" step="1000" data-path="economics.deployment_cost_usd_per_vessel_week"></label>
+        </div>
+        <p class="muted small">Default economic parameters are illustrative and are not CMA CGM financial data.</p>
+      </section>
+
+      <section class="card">
+        <h2>Service and routing data</h2>
+        <div class="dir-legend">
+          <span><b>Westbound</b> = Asia → Europe</span>
+          <span><b>Eastbound</b> = Europe → Asia</span>
+          <span><b>Round trip</b> = westbound leg + eastbound leg of the scenario's route</span>
+        </div>
+        <div id="route-diagram" class="route-diagram"></div>
+        <div class="table-wrap"><table id="services-edit" class="data edit"></table></div>
+        <p class="muted small">Default distances are the lengths of the authored sea-lane paths shown on the map.
+          Hover a service name to see its port rotation.</p>
+      </section>
+
+      <section class="card">
+        <h2>Business constraints</h2>
+        <div class="two-col">
+          <div>
+            <h3>Optional settings</h3>
+            <div id="rules"></div>
+          </div>
+          <div>
+            <h3>Always applied</h3>
+            <ul class="locked rules-plain">
+              <li><b>One Fleet Allocation per Service</b><span>Each service must be assigned a whole number of vessels.</span></li>
+              <li><b>Fleet Availability</b><span>The total number of vessels assigned across all services cannot exceed the available fleet.</span></li>
+              <li><b>Weekly Departures</b><span>Each service must maintain one departure every week.</span></li>
+              <li><b>Sailing Speed Limits</b><span>Vessels must operate within the minimum and maximum sailing speeds specified above.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <div class="actions end">
+        <button class="btn primary big" id="btn-compare-2">Run optimization</button>
+      </div>
+    </main>
+
+    <!-- ================= PAGE 1: DECISION DASHBOARD ================= -->
+    <main id="page-results" class="page wide">
+      <header class="page-head row">
+        <div>
+          <h1>Decision Dashboard</h1>
+          <p class="lead">Fleet allocation and sailing-speed plan for Asia–North Europe under Red Sea routing disruption.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" data-goto="inputs">Edit scenario</button>
+          <button class="btn primary" id="btn-rerun">Rerun optimization</button>
+        </div>
+      </header>
+      <div id="results-status" class="status idle">Preparing the first optimization run…</div>
+
+      <div id="results-body" class="hidden">
+        <!-- 1 · Operating plan comparison -->
+        <section class="card plan-section">
+          <h2><span class="step">1</span>Operating Plan Comparison</h2>
+          <div class="plan-flow" id="plan-flow"></div>
+          <div class="rec-banner" id="rec-banner"></div>
+        </section>
+
+        <!-- 2 · Fleet movement comparison -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2><span class="step">2</span>Fleet Movement Comparison</h2>
+              <p class="sub">Three operating plans · synchronized simulation · illustrative vessel movements, not live tracking</p>
+            </div>
+            <div class="svc-filter" id="svc-filter"></div>
+          </div>
+          <div class="maps3" id="maps3">
+            <div class="map-panel a" data-key="a">
+              <div class="map-head"><b>Baseline</b><span>Mixed routing · EB via Suez</span></div>
+              <div class="map-wrap"><div class="map" data-map="a"></div>
+                <div class="map-info" data-info="a"></div><div class="map-overlay hidden" data-overlay="a"></div></div>
+            </div>
+            <div class="map-panel b1" data-key="b_fixed">
+              <div class="map-head"><b>Unchanged Fleet</b><span>Full Cape routing</span></div>
+              <div class="map-wrap"><div class="map" data-map="b_fixed"></div>
+                <div class="map-info" data-info="b_fixed"></div><div class="map-overlay hidden" data-overlay="b_fixed"></div></div>
+            </div>
+            <div class="map-panel b2" data-key="b">
+              <div class="map-head"><b>Optimized Fleet</b><span>Full Cape routing</span></div>
+              <div class="map-wrap"><div class="map" data-map="b"></div>
+                <div class="map-info" data-info="b"></div><div class="map-overlay hidden" data-overlay="b"></div></div>
+            </div>
+          </div>
+          <div class="playbar">
+            <button class="icon-btn" id="map-play" aria-label="Play">▶</button>
+            <input type="range" id="map-scrub" min="0" max="105" step="0.5" value="0" aria-label="Synthetic day">
+            <span class="day">Day <span id="map-day" class="mono">0</span></span>
+            <select id="map-rate" aria-label="Playback speed">
+              <option value="1">1 day/s</option><option value="2">2 days/s</option>
+              <option value="5" selected>5 days/s</option><option value="10">10 days/s</option>
+            </select>
+            <span class="playbar-hint" id="map-hint">Click a route to highlight that service on all maps.</span>
+            <button class="btn small" id="map-reset">Reset</button>
+            <button class="icon-btn" id="map-overview" title="Fit all routes" aria-label="Fit all routes">⤢</button>
+          </div>
+        </section>
+
+        <!-- 3 · Fleet allocation and sailing speed -->
+        <section class="card">
+          <h2><span class="step">3</span>Fleet Allocation and Sailing Speed</h2>
+          <div class="analysis3">
+            <div class="panel"><div class="panel-title">Fleet allocation (vessels per service)</div>
+              <table id="fleet-table" class="data compact"></table></div>
+            <div class="panel"><div class="panel-title">Sailing speed by service</div>
+              <div class="scen-legend" data-legend="speed"></div>
+              <div id="chart-speed" class="chart small"></div></div>
+            <div class="panel"><div class="panel-title">Weekly operating cost</div>
+              <div class="scen-legend" data-legend="cost"></div>
+              <div id="chart-cost" class="chart small"></div></div>
+          </div>
+        </section>
+
+        <!-- 4 · Detailed analysis (collapsed) -->
+        <details class="card fold detailed" id="detailed">
+          <summary><span class="step">4</span>Detailed Analysis</summary>
+          <details class="detail-fold" id="fold-breakdown">
+            <summary>Weekly cost breakdown (fuel vs incremental vessel operating cost)</summary>
+            <div id="chart-breakdown" class="chart wide"></div>
+          </details>
+          <details class="detail-fold">
+            <summary>Service-level metrics (vessels, speed, active cycle, rotation, slack, fuel, costs)</summary>
+            <div class="defs small">
+              <span><b>Active cycle</b> = sailing time + port time.</span>
+              <span><b>Scheduled rotation</b> = 7 × allocated vessels (days).</span>
+              <span><b>Schedule slack</b> = scheduled rotation − active cycle; with a minimum schedule buffer (C7) enabled,
+                the buffer is the minimum required part of this slack.</span>
+            </div>
+            <div class="table-wrap"><table id="detail-table" class="data detail"></table></div>
+          </details>
+          <details class="detail-fold">
+            <summary>Route distances by service (mixed routing vs full Cape)</summary>
+            <div id="what-changed"></div>
+          </details>
+          <details class="detail-fold">
+            <summary>Cost calculation details</summary>
+            <div id="cost-details"></div>
+          </details>
+          <details class="detail-fold">
+            <summary>Solver status and independent verification</summary>
+            <div id="solver-details" class="small"></div>
+          </details>
+        </details>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

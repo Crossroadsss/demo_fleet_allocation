@@ -202,8 +202,7 @@ def test_plain_language_settings_control_same_backend_fields(page):
 
 def test_no_banner_and_clean_sidebar(page):
     assert page.locator("#disclaimer, .disclaimer").count() == 0
-    assert [x.strip() for x in page.locator(".sidebar-foot > div").all_text_contents()] == [
-        "Designed & built by Dr. Wu Wan", "Illustrative planning data"]
+    assert [x.strip() for x in page.locator(".sidebar-foot > div").all_text_contents()] == ["Illustrative planning data"]
     assert "OR-Tools" not in page.text_content(".sidebar")
     assert "not live tracking" in page.text_content("#page-results")
 

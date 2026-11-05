@@ -543,4 +543,3 @@ table.compact th:nth-child(5), table.compact td:nth-child(5) { width: 14%; }
 @media (max-width: 860px) { .nav-icon { width: 16px; height: 16px; } }
 .nav-icon { width: 18px; height: 18px; opacity: .9; }
 .nav-item.active .nav-icon { opacity: 1; }
-.sidebar-foot .credit { font-size: 12px; color: #e3ebf5; }

@@ -14,7 +14,7 @@ A persistent left sidebar (sticky on desktop; compact top navigation on phones) 
 2. **Scenario Configuration** — all editable inputs; primary action **Run optimization**.
 3. **Model & Methodology** — complete formulation for technical discussion.
 
-One HTML document; JavaScript switches pages and keeps shared state (inputs, the inputs snapshot of the last run, the last comparison). The sidebar shows a `stale` badge when results no longer match the inputs. No page-wide disclaimer banner: at the bottom of the sidebar only the author credit ("Designed & built by Dr. Wu Wan") and one short line ("Illustrative planning data"), a short note at the maps (illustrative movements, not live tracking), and the full assumptions, sources and limitations on Model & Methodology. Solver technology is named only on Model & Methodology and in the verification details, not in the sidebar.
+One HTML document; JavaScript switches pages and keeps shared state (inputs, the inputs snapshot of the last run, the last comparison). The sidebar shows a `stale` badge when results no longer match the inputs. No page-wide disclaimer banner: one short line at the bottom of the sidebar ("Illustrative planning data"), a short note at the maps (illustrative movements, not live tracking), and the full assumptions, sources and limitations on Model & Methodology. Solver technology is named only on Model & Methodology and in the verification details, not in the sidebar.
 
 ## 2. Decision Dashboard
 
